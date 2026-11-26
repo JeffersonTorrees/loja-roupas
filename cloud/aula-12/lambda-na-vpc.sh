@@ -13,6 +13,7 @@ PRIV2=$(id_por_nome subnets loja-subnet-private2-us-east-1b "Subnets[0].SubnetId
 echo ">> permissão para a Lambda criar interfaces de rede na VPC"
 aws iam attach-role-policy --role-name loja-api-role \
   --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+sleep 20   # o IAM leva alguns segundos para a permissão nova valer
 
 echo ">> security group loja-lambda-sg (sem entrada; saída liberada é o padrão)"
 SG=$(aws ec2 create-security-group --group-name loja-lambda-sg --description "funcao da loja" \
