@@ -13,7 +13,8 @@ function montarCard(p) {
   titulo.textContent = p.nome;
 
   const tamanho = document.createElement("p");
-  tamanho.textContent = `Tamanho ${p.tamanho}`;   // o contrato da API
+  // o contrato da API; na Lambda da Cloud o tamanho é opcional
+  tamanho.textContent = p.tamanho ? `Tamanho ${p.tamanho}` : "Tamanho único";
 
   const preco = document.createElement("p");
   const forte = document.createElement("strong");
