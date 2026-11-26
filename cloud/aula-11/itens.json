@@ -1,0 +1,13 @@
+{
+  "loja-produtos": [
+    { "PutRequest": { "Item": {
+      "id": { "N": "1" }, "nome": { "S": "Camiseta básica" }, "preco": { "N": "39.90" }, "tamanho": { "S": "M" }
+    } } },
+    { "PutRequest": { "Item": {
+      "id": { "N": "2" }, "nome": { "S": "Calça jeans" }, "preco": { "N": "129.9" }, "tamanho": { "S": "G" }
+    } } },
+    { "PutRequest": { "Item": {
+      "id": { "N": "3" }, "nome": { "S": "Moletom" }, "preco": { "N": "159.9" }, "tamanho": { "S": "P" }
+    } } }
+  ]
+}

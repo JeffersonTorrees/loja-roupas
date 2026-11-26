@@ -1,0 +1,18 @@
+[Unit]
+Description=Loja de Roupas (FastAPI + uvicorn)
+After=network.target
+
+[Service]
+User=loja
+Group=loja
+WorkingDirectory=/opt/loja-roupas
+# --root-path /api: o nginx tira o prefixo /api; assim o /api/docs acha o openapi.json
+ExecStart=/opt/loja-roupas/.venv/bin/uvicorn api:app --host 127.0.0.1 --port 8000 --root-path /api
+Restart=always
+RestartSec=2
+# o loja.db fica em /opt/loja-roupas (disco EBS): sobrevive a reinícios
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

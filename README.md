@@ -68,3 +68,90 @@ porta 5500 (CORS).
 | `front/config.js` | endereço da API (local ou `/api` em produção) | 13 |
 | `docs/` | domínio, modelo ER, arquitetura e relatório técnico | 10 a 13 |
 | `tests/` | testes de cada camada, do HTML e do CORS | 4 a 13 |
+
+## Deploy na AWS
+
+A loja (front + API) roda numa EC2 **Amazon Linux 2023** (`t3.micro`, us-east-1). O
+**nginx** serve o front e repassa `/api/*` para o **uvicorn**. Front e API ficam na
+mesma origem, então não há CORS em produção: o `front/config.js` usa `/api` quando a
+página não está na porta 5500.
+
+```mermaid
+flowchart LR
+    U["Navegador"] -- "HTTP :80" --> N
+    subgraph EC2["EC2 t3.micro · Amazon Linux 2023 · SG loja-web-sg (80 aberto, 22 só do meu IP)"]
+        N["nginx :80"]
+        F["/opt/loja-roupas/front<br/>(HTML, CSS, JS)"]
+        A["uvicorn + FastAPI<br/>127.0.0.1:8000<br/>(systemd: loja.service)"]
+        D[("loja.db · SQLite<br/>no disco EBS")]
+        N -- "/" --> F
+        N -- "/api/ → /" --> A
+        A --> D
+    end
+```
+
+### Passo a passo
+
+1. **Criar a EC2** (console): Amazon Linux 2023, `t3.micro`, par de chaves `loja-key`
+   (o `.pem` fica **fora** do repositório), security group `loja-web-sg` com SSH 22
+   **só do seu IP** e HTTP 80 aberto (0.0.0.0/0).
+2. **Entrar** (o IP público está no console):
+   ```bash
+   chmod 400 ~/loja-key.pem
+   ssh -i ~/loja-key.pem ec2-user@<IP>
+   ```
+3. **Instalar** (na EC2):
+   ```bash
+   sudo dnf install -y git
+   git clone https://github.com/JeffersonTorrees/loja-roupas.git /tmp/loja-roupas
+   sudo REPO_URL=https://github.com/JeffersonTorrees/loja-roupas.git bash /tmp/loja-roupas/deploy/setup-ec2.sh
+   ```
+   O `setup-ec2.sh` instala `git nginx python3.11`, cria o usuário sem privilégios
+   `loja`, clona em `/opt/loja-roupas`, cria o `.venv`, copia `deploy/loja.service`
+   para o systemd e `deploy/nginx-loja.conf` para `/etc/nginx/conf.d/`, e roda
+   `systemctl enable --now loja nginx`.
+   > Repositório privado? Use um token no lugar da senha (`https://<token>@github.com/...`),
+   > ou deixe o repositório público para a avaliação.
+4. **Atualizar** depois de um `git push`: `sudo bash /opt/loja-roupas/deploy/atualizar.sh`
+
+### Testes de produção
+
+```bash
+curl -i http://<IP>/api/produtos         # 200 + JSON
+# navegador: http://<IP>/  -> vitrine com os produtos do banco
+# navegador: http://<IP>/cadastro.html -> cadastrar -> aparece na vitrine
+ssh -i ~/loja-key.pem ec2-user@<IP> sudo systemctl restart loja
+curl http://<IP>/api/produtos            # o produto cadastrado continua lá
+```
+
+Documentação interativa em produção: `http://<IP>/api/docs`.
+
+> **Custo:** `t3.micro` e 30 GB de EBS estão no nível gratuito. O IPv4 público é cobrado
+> à parte (cerca de US$ 0,005/h) fora do nível gratuito. **Pare a instância depois da
+> avaliação.**
+
+## A arquitetura da disciplina de Cloud (serverless)
+
+Em Cloud Computing, a mesma loja foi montada sem servidor (scripts em `cloud/aula-XX/`):
+
+```mermaid
+flowchart LR
+    U["Navegador"] --> S3["S3<br/>site da loja"]
+    U -- "x-api-key" --> GW["API Gateway HTTP<br/>loja-api"]
+    GW --> L["Lambda loja-api"]
+    subgraph VPC["loja-vpc (sub-redes privadas, sem NAT)"]
+        L
+    end
+    L -- "Gateway endpoint" --> DDB[("DynamoDB<br/>loja-produtos")]
+    GW -- "POST /pedidos" --> LP["Lambda loja-pedidos"] -- 202 --> Q["SQS loja-pedidos"]
+    Q -- "batch 1, concorrência 2" --> LC["Lambda loja-processa"]
+    Q -- "3 falhas" --> DLQ["SQS loja-pedidos-dlq"]
+    DLQ --> CW["CloudWatch<br/>alarme loja-pedido-perdido"] --> SNS["SNS loja-alertas<br/>e-mail"]
+```
+
+| Aula | O que | Pasta |
+|---|---|---|
+| 10 | S3: classes de armazenamento e ciclo de vida | `cloud/aula-10/` |
+| 11 | DynamoDB + Lambda com boto3 + rotas no API Gateway | `cloud/aula-11/` |
+| 12 | VPC com sub-redes privadas e endpoint Gateway do DynamoDB | `cloud/aula-12/` |
+| 13 | SQS + DLQ, teste de carga, CloudWatch e SNS | `cloud/aula-13/` |

@@ -5,3 +5,7 @@ __pycache__/
 .DS_Store
 loja.db
 .env
+.cache/
+cloud/**/amostra/
+cloud/**/*.zip
+cloud/**/*.tmp.json
