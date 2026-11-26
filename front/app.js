@@ -37,4 +37,13 @@ function desenhar(lista) {
   }
 }
 
+// Etapa 20: a busca filtra a vitrine enquanto a pessoa digita
+const busca = document.querySelector("#busca");
+
+busca.addEventListener("input", (e) => {
+  const termo = e.target.value.trim().toLowerCase();
+  const achados = produtos.filter((p) => p.nome.toLowerCase().includes(termo));
+  desenhar(achados);
+});
+
 desenhar(produtos);

@@ -59,6 +59,24 @@ nav a[aria-current="page"] {
   text-decoration: underline;
 }
 
+.busca {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.busca label {
+  font-weight: 600;
+}
+
+.busca input {
+  padding: 8px 10px;
+  font: inherit;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+}
+
 main {
   max-width: 1000px;
   margin: 0 auto;
