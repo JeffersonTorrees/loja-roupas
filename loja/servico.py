@@ -50,7 +50,7 @@ class ServicoCatalogo:
         """O objeto do domínio (o carrinho precisa dele)."""
         produto = self.repositorio.buscar(produto_id)
         if produto is None:
-            raise ProdutoNaoEncontrado("produto não encontrado")
+            raise ProdutoNaoEncontrado(f"produto {produto_id} não encontrado")
         return produto
 
     def buscar(self, produto_id):
@@ -73,4 +73,4 @@ class ServicoCatalogo:
 
     def remover(self, produto_id):
         if not self.repositorio.remover(produto_id):
-            raise ProdutoNaoEncontrado("produto não encontrado")
+            raise ProdutoNaoEncontrado(f"produto {produto_id} não encontrado")

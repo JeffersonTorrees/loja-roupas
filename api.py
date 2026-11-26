@@ -36,14 +36,14 @@ def popular_se_vazio(servico):
 
 
 @asynccontextmanager
-async def lifespan(app):
+async def ciclo_de_vida(app):
     criar_tabelas(engine)
     with Session(engine) as sessao:
         popular_se_vazio(ServicoCatalogo(RepositorioProdutos(sessao)))
     yield
 
 
-app = FastAPI(title="Loja de Roupas", lifespan=lifespan)
+app = FastAPI(title="Loja de Roupas", lifespan=ciclo_de_vida)
 
 # Etapa 22: o navegador só deixa a vitrine (porta 5500) ler a API (porta 8000)
 # se a API disser que confia nessa origem. Nunca "*" nas origens.
@@ -127,8 +127,8 @@ def cadastrar_produto(entrada: ProdutoEntrada,
 
 
 @app.put("/produtos/{produto_id}")
-def alterar_produto(produto_id: int, entrada: ProdutoEntrada,
-                    servico: ServicoCatalogo = Depends(obter_servico)):
+def atualizar_produto(produto_id: int, entrada: ProdutoEntrada,
+                      servico: ServicoCatalogo = Depends(obter_servico)):
     return servico.atualizar(produto_id, entrada.model_dump())
 
 

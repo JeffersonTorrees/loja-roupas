@@ -23,6 +23,18 @@ fastapi dev api.py               # abre a API em http://127.0.0.1:8000/docs
 Na primeira vez que a API sobe, ela cria o `loja.db` com 3 produtos. Apague o
 arquivo para voltar ao catálogo inicial.
 
+### A vitrine (front)
+
+Com a API ligada, abra um **segundo terminal**:
+
+```bash
+python -m http.server 5500 --directory front
+```
+
+e acesse http://127.0.0.1:5500. A vitrine busca os produtos na API e a página
+"Cadastrar produto" grava no banco. A API só aceita pedidos do navegador vindos da
+porta 5500 (CORS).
+
 ## Rotas
 
 | Método | Rota | O que faz |
@@ -50,4 +62,9 @@ arquivo para voltar ao catálogo inicial.
 | `loja/banco.py` | tabela `produto` e conexão SQLite (SQLModel) | 10 |
 | `loja/repositorio.py` | a única camada que fala com o banco | 10 |
 | `loja/servico.py` | as regras do catálogo (sem HTTP, sem banco) | 10 |
-| `tests/` | testes de cada camada | 4 a 10 |
+| `front/index.html`, `cadastro.html` | vitrine e cadastro em HTML semântico | 11 |
+| `front/estilo.css` | visual com Flexbox, Grid e `@media` | 11 |
+| `front/app.js`, `cadastro.js` | DOM, eventos, busca, validação e `fetch` | 12 e 13 |
+| `front/config.js` | endereço da API (local ou `/api` em produção) | 13 |
+| `docs/` | domínio, modelo ER, arquitetura e relatório técnico | 10 a 13 |
+| `tests/` | testes de cada camada, do HTML e do CORS | 4 a 13 |
