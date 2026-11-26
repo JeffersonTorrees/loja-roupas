@@ -1,11 +1,9 @@
-// Etapa 19: a vitrine desenhada por JavaScript (Aula 12)
-const produtos = [
-  { nome: "Camiseta básica", preco: 39.90, tam: "M" },
-  { nome: "Calça jeans", preco: 129.90, tam: "G" },
-  { nome: "Moletom", preco: 159.90, tam: "P" },
-];
+// Etapas 19 a 22: a vitrine desenhada por JavaScript, agora com os produtos da API
+// (a constante API vem do config.js)
+let produtos = [];          // agora vem da API
 
 const vitrine = document.querySelector("#vitrine");
+const busca = document.querySelector("#busca");
 
 function montarCard(p) {
   const card = document.createElement("article");
@@ -15,7 +13,7 @@ function montarCard(p) {
   titulo.textContent = p.nome;
 
   const tamanho = document.createElement("p");
-  tamanho.textContent = `Tamanho ${p.tam}`;
+  tamanho.textContent = `Tamanho ${p.tamanho}`;   // o contrato da API
 
   const preco = document.createElement("p");
   const forte = document.createElement("strong");
@@ -37,8 +35,11 @@ function desenhar(lista) {
   }
 }
 
-// Etapa 20: a busca filtra a vitrine enquanto a pessoa digita
-const busca = document.querySelector("#busca");
+async function carregar() {
+  const resposta = await fetch(`${API}/produtos`);
+  produtos = await resposta.json();
+  desenhar(produtos);
+}
 
 busca.addEventListener("input", (e) => {
   const termo = e.target.value.trim().toLowerCase();
@@ -46,4 +47,4 @@ busca.addEventListener("input", (e) => {
   desenhar(achados);
 });
 
-desenhar(produtos);
+carregar();

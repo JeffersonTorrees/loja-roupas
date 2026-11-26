@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 from typing import Literal
 
 from fastapi import Depends, FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlmodel import Session
@@ -43,6 +44,15 @@ async def lifespan(app):
 
 
 app = FastAPI(title="Loja de Roupas", lifespan=lifespan)
+
+# Etapa 22: o navegador só deixa a vitrine (porta 5500) ler a API (porta 8000)
+# se a API disser que confia nessa origem. Nunca "*" nas origens.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:5500", "http://localhost:5500"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def obter_sessao():
