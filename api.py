@@ -1,37 +1,97 @@
-"""Etapas 10 e 11: a loja vira API (Aula 9)."""
-from fastapi import FastAPI, HTTPException
+"""Etapas 10 a 15: a loja como API, agora com banco e camadas (Aulas 9 e 10).
+
+Camadas: rota (aqui) -> serviço (loja/servico.py) -> repositório
+(loja/repositorio.py) -> banco (loja/banco.py, arquivo loja.db).
+"""
+from contextlib import asynccontextmanager
+from typing import Literal
+
+from fastapi import Depends, FastAPI, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from sqlmodel import Session
 
+from loja.banco import criar_engine, criar_tabelas
 from loja.carrinho import Carrinho
-from loja.produto import Calca, Camiseta, Produto
 from loja.promocao import Percentual
+from loja.repositorio import RepositorioProdutos
+from loja.servico import (DadosInvalidos, ProdutoJaExiste, ProdutoNaoEncontrado,
+                          ServicoCatalogo, com_id)
 
-app = FastAPI(title="Loja de Roupas")
+engine = criar_engine()
 
-# o catálogo: cada produto ganha um número (id)
-CATALOGO = {
-    1: Camiseta("Camiseta básica", 39.90, "M", "curta"),
-    2: Calca("Calça jeans", 129.90, "G", "reta"),
-    3: Produto("Moletom", 159.90, "P"),
-}
+CATALOGO_INICIAL = [
+    {"tipo": "Camiseta", "nome": "Camiseta básica", "preco": 39.90, "tamanho": "M", "manga": "curta"},
+    {"tipo": "Calca", "nome": "Calça jeans", "preco": 129.90, "tamanho": "G", "modelagem": "reta"},
+    {"tipo": "Produto", "nome": "Moletom", "preco": 159.90, "tamanho": "P"},
+]
+
+
+def popular_se_vazio(servico):
+    """Na primeira vez, a loja já abre com os 3 produtos de sempre."""
+    if not servico.listar():
+        for dados in CATALOGO_INICIAL:
+            servico.cadastrar(dados)
+
+
+@asynccontextmanager
+async def lifespan(app):
+    criar_tabelas(engine)
+    with Session(engine) as sessao:
+        popular_se_vazio(ServicoCatalogo(RepositorioProdutos(sessao)))
+    yield
+
+
+app = FastAPI(title="Loja de Roupas", lifespan=lifespan)
+
+
+def obter_sessao():
+    with Session(engine) as sessao:
+        yield sessao
+
+
+def obter_servico(sessao: Session = Depends(obter_sessao)):
+    return ServicoCatalogo(RepositorioProdutos(sessao))
+
+
+# erros do serviço viram respostas HTTP
+@app.exception_handler(ProdutoNaoEncontrado)
+def nao_encontrado(request: Request, erro: ProdutoNaoEncontrado):
+    return JSONResponse(status_code=404, content={"detail": str(erro)})
+
+
+@app.exception_handler(ProdutoJaExiste)
+def ja_existe(request: Request, erro: ProdutoJaExiste):
+    return JSONResponse(status_code=409, content={"detail": str(erro)})
+
+
+@app.exception_handler(DadosInvalidos)
+def dados_invalidos(request: Request, erro: DadosInvalidos):
+    return JSONResponse(status_code=422, content={"detail": str(erro)})
+
+
+class ProdutoEntrada(BaseModel):
+    """O formato que o cliente manda para cadastrar ou alterar um produto."""
+    tipo: Literal["Produto", "Camiseta", "Calca"] = "Produto"
+    nome: str
+    preco: float
+    tamanho: str
+    manga: str | None = None
+    modelagem: str | None = None
+
+
+class ItemPedido(BaseModel):
+    """O formato que o cliente precisa mandar no POST do carrinho."""
+    produto_id: int
+    quantidade: int = Field(gt=0, le=10)
 
 
 def novo_carrinho():
     return Carrinho(Percentual(10))   # promoção da semana: 10%
 
 
-# atenção: o carrinho mora na memória do servidor (Aula 10 resolve)
+# o carrinho continua na memória do servidor
 carrinho = novo_carrinho()
-
-
-class ItemPedido(BaseModel):
-    """O formato que o cliente precisa mandar no POST."""
-    produto_id: int
-    quantidade: int = Field(gt=0, le=10)
-
-
-def com_id(produto_id, produto):
-    return {"id": produto_id, **produto.para_dict()}
 
 
 @app.get("/")
@@ -40,29 +100,36 @@ def inicio():
 
 
 @app.get("/produtos")
-def listar_produtos(tamanho: str | None = None, preco_max: float | None = None):
-    resultado = []
-    for produto_id, produto in CATALOGO.items():
-        if tamanho is not None and produto.tamanho != tamanho:
-            continue
-        if preco_max is not None and produto.preco > preco_max:
-            continue
-        resultado.append(com_id(produto_id, produto))
-    return resultado
+def listar_produtos(tamanho: str | None = None, preco_max: float | None = None,
+                    servico: ServicoCatalogo = Depends(obter_servico)):
+    return servico.listar(tamanho, preco_max)
 
 
 @app.get("/produtos/{produto_id}")
-def buscar_produto(produto_id: int):
-    if produto_id not in CATALOGO:
-        raise HTTPException(status_code=404, detail="produto não encontrado")
-    return com_id(produto_id, CATALOGO[produto_id])
+def buscar_produto(produto_id: int, servico: ServicoCatalogo = Depends(obter_servico)):
+    return servico.buscar(produto_id)
+
+
+@app.post("/produtos", status_code=201)
+def cadastrar_produto(entrada: ProdutoEntrada,
+                      servico: ServicoCatalogo = Depends(obter_servico)):
+    return servico.cadastrar(entrada.model_dump())
+
+
+@app.put("/produtos/{produto_id}")
+def alterar_produto(produto_id: int, entrada: ProdutoEntrada,
+                    servico: ServicoCatalogo = Depends(obter_servico)):
+    return servico.atualizar(produto_id, entrada.model_dump())
+
+
+@app.delete("/produtos/{produto_id}", status_code=204)
+def remover_produto(produto_id: int, servico: ServicoCatalogo = Depends(obter_servico)):
+    servico.remover(produto_id)
 
 
 @app.post("/carrinho/itens", status_code=201)
-def adicionar_item(item: ItemPedido):
-    if item.produto_id not in CATALOGO:
-        raise HTTPException(status_code=404, detail="produto não encontrado")
-    produto = CATALOGO[item.produto_id]
+def adicionar_item(item: ItemPedido, servico: ServicoCatalogo = Depends(obter_servico)):
+    produto = servico.produto(item.produto_id)   # 404 se não existe
     carrinho.adicionar(produto, item.quantidade)
     return {
         "adicionado": com_id(item.produto_id, produto),
