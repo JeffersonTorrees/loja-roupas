@@ -26,7 +26,7 @@ form.addEventListener("submit", async (e) => {
   try {
     const resposta = await fetch(`${API}/produtos`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { ...API_HEADERS, "Content-Type": "application/json" },
       body: JSON.stringify(produto),
     });
     const corpo = await resposta.json();

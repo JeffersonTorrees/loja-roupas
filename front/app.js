@@ -41,7 +41,7 @@ const estado = document.querySelector("#estado");
 async function carregar() {
   estado.textContent = "Carregando produtos...";
   try {
-    const resposta = await fetch(`${API}/produtos`);
+    const resposta = await fetch(`${API}/produtos`, { headers: API_HEADERS });
     if (!resposta.ok) {
       throw new Error(`a API respondeu ${resposta.status}`);
     }
