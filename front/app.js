@@ -35,10 +35,23 @@ function desenhar(lista) {
   }
 }
 
+// Etapa 24: a pessoa sempre sabe o que está acontecendo
+const estado = document.querySelector("#estado");
+
 async function carregar() {
-  const resposta = await fetch(`${API}/produtos`);
-  produtos = await resposta.json();
-  desenhar(produtos);
+  estado.textContent = "Carregando produtos...";
+  try {
+    const resposta = await fetch(`${API}/produtos`);
+    if (!resposta.ok) {
+      throw new Error(`a API respondeu ${resposta.status}`);
+    }
+    produtos = await resposta.json();
+    desenhar(produtos);
+    estado.textContent = produtos.length === 0 ? "Nenhum produto cadastrado ainda." : "";
+  } catch (erro) {
+    estado.textContent = "Não foi possível falar com a API. Ela está ligada?";
+    console.error(erro);
+  }
 }
 
 busca.addEventListener("input", (e) => {

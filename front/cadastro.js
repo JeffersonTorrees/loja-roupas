@@ -22,21 +22,27 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  const resposta = await fetch(`${API}/produtos`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(produto),
-  });
-  const corpo = await resposta.json();
+  aviso.textContent = "Enviando...";
+  try {
+    const resposta = await fetch(`${API}/produtos`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(produto),
+    });
+    const corpo = await resposta.json();
 
-  if (!resposta.ok) {
-    // o 422 do Pydantic manda uma lista de erros; os nossos mandam um texto
-    const detalhe = Array.isArray(corpo.detail)
-      ? corpo.detail.map((d) => d.msg).join("; ")
-      : corpo.detail;
-    aviso.textContent = `Não cadastrou: ${detalhe}`;
-    return;
+    if (!resposta.ok) {
+      // o 422 do Pydantic manda uma lista de erros; os nossos mandam um texto
+      const detalhe = Array.isArray(corpo.detail)
+        ? corpo.detail.map((d) => d.msg).join("; ")
+        : corpo.detail;
+      aviso.textContent = `Não cadastrou: ${detalhe}`;
+      return;
+    }
+    aviso.textContent = `${corpo.nome} cadastrado com o número ${corpo.id}.`;
+    form.reset();
+  } catch (erro) {
+    aviso.textContent = "Não foi possível falar com a API. Ela está ligada?";
+    console.error(erro);
   }
-  aviso.textContent = `${corpo.nome} cadastrado com o número ${corpo.id}.`;
-  form.reset();
 });
