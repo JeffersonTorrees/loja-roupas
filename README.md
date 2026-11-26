@@ -95,6 +95,10 @@ flowchart LR
 1. **Criar a EC2** (console): Amazon Linux 2023, `t3.micro`, par de chaves `loja-key`
    (o `.pem` fica **fora** do repositório), security group `loja-web-sg` com SSH 22
    **só do seu IP** e HTTP 80 aberto (0.0.0.0/0).
+   **Atalho pela CLI:** `MEU_IP=<seu IP> bash deploy/criar-ec2.sh` cria a chave (em
+   `~/.ssh/loja-key.pem`), o security group e a instância. Pelo user-data, a instância
+   já roda o `setup-ec2.sh` sozinha; em ~1 minuto a loja está em `http://<IP>/`, e os
+   passos 2 e 3 abaixo ficam desnecessários.
 2. **Entrar** (o IP público está no console):
    ```bash
    chmod 400 ~/loja-key.pem

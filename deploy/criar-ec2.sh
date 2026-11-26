@@ -15,7 +15,7 @@ PEM="$HOME/.ssh/loja-key.pem"
 echo ">> 1. par de chaves loja-key -> $PEM"
 mkdir -p "$HOME/.ssh"
 aws ec2 create-key-pair --key-name loja-key --key-type ed25519 \
-  --query KeyMaterial --output text > "$PEM"
+  --query KeyMaterial --output text | tr -d '\r' > "$PEM"   # sem CRLF: o ssh recusa a chave no Windows
 chmod 400 "$PEM" 2>/dev/null || true
 
 echo ">> 2. security group loja-web-sg (VPC padrão)"
@@ -35,7 +35,7 @@ dnf install -y git
 git clone $REPO_URL /tmp/loja-roupas
 REPO_URL=$REPO_URL bash /tmp/loja-roupas/deploy/setup-ec2.sh > /var/log/loja-setup.log 2>&1
 EOF
-ID=$(aws ec2 run-instances --image-id "$AMI" --instance-type t3.micro --key-name loja-key \
+ID=$(MSYS_NO_PATHCONV=1 aws ec2 run-instances --image-id "$AMI" --instance-type t3.micro --key-name loja-key \
   --security-group-ids "$SG" --associate-public-ip-address \
   --metadata-options HttpTokens=required,HttpEndpoint=enabled \
   --block-device-mappings 'DeviceName=/dev/xvda,Ebs={VolumeSize=8,VolumeType=gp3,DeleteOnTermination=true}' \
