@@ -1,4 +1,4 @@
-# Relatório técnico — Loja de Roupas (rascunho)
+# Relatório técnico — Loja de Roupas
 
 **Disciplina:** Coding · Faculdade Senac Pernambuco · ADS 2026.2
 
