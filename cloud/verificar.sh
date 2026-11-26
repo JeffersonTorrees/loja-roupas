@@ -22,8 +22,10 @@ if aws lambda get-function-configuration --function-name loja-api >/dev/null 2>&
 else falta "Lambda loja-api"; fi
 aws iam get-role --role-name loja-api-role >/dev/null 2>&1 && ok "papel loja-api-role" \
   || falta "papel loja-api-role (veja o nome real no 'papel' acima)"
-API_ID=$(aws apigatewayv2 get-apis --query "Items[?Name=='loja-api'].ApiId | [0]" --output text)
-if [ "$API_ID" != "None" ]; then
+API_ID=$(aws apigatewayv2 get-apis --query "Items[?Name=='loja-api'].ApiId | [0]" --output text 2>/dev/null)
+if [ -z "$API_ID" ]; then
+  falta "não consegui ler o API Gateway (sem permissão?)"
+elif [ "$API_ID" != "None" ]; then
   ok "HTTP API loja-api ($(aws apigatewayv2 get-api --api-id "$API_ID" --query ApiEndpoint --output text))"
   aws apigatewayv2 get-routes --api-id "$API_ID" --query "Items[].RouteKey" --output text
   aws apigatewayv2 get-stages --api-id "$API_ID" --query "Items[].{stage:StageName,autoDeploy:AutoDeploy}" --output table
