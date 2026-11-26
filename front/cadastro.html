@@ -21,7 +21,7 @@
   <main>
     <h1>Cadastrar produto</h1>
 
-    <form class="formulario">
+    <form id="form-produto" class="formulario">
       <label for="tipo">Tipo</label>
       <select id="tipo" name="tipo">
         <option value="Produto">Produto</option>
@@ -46,10 +46,13 @@
 
       <button type="submit">Cadastrar</button>
     </form>
+    <p id="aviso" role="status"></p>
   </main>
 
   <footer>
     <p>Loja de Roupas · Faculdade Senac Pernambuco · 2026</p>
   </footer>
+
+  <script src="cadastro.js"></script>
 </body>
 </html>

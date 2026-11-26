@@ -169,6 +169,12 @@ footer {
   margin-top: 12px;
 }
 
+#aviso,
+#estado {
+  font-weight: 600;
+  color: var(--verde);
+}
+
 /* tela pequena: uma coluna só */
 @media (max-width: 700px) {
   header {
