@@ -5,6 +5,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 export AWS_DEFAULT_REGION=us-east-1
+export AWS_CLI_FILE_ENCODING=UTF-8   # no Windows, o CLI leria file:// em cp1252
 CONTA=$(aws sts get-caller-identity --query Account --output text)   # não versionado
 SITE_ORIGEM="${SITE_ORIGEM:-}"   # ex.: http://loja-site-x.s3-website-us-east-1.amazonaws.com
 

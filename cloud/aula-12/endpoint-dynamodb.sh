@@ -3,6 +3,7 @@
 # Gateway endpoint é gratuito. (Nunca Interface endpoint: esse cobra por hora.)
 set -euo pipefail
 export AWS_DEFAULT_REGION=us-east-1
+export AWS_CLI_FILE_ENCODING=UTF-8   # no Windows, o CLI leria file:// em cp1252
 id_por_nome() { aws ec2 "describe-$1" --filters "Name=tag:Name,Values=$2" --query "$3" --output text; }
 
 VPC=$(id_por_nome vpcs loja-vpc "Vpcs[0].VpcId")

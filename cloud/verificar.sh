@@ -2,6 +2,7 @@
 # Confere (só leitura) o que as Aulas 10–13 precisam. Não cria nem apaga nada.
 set -uo pipefail
 export AWS_DEFAULT_REGION=us-east-1
+export AWS_CLI_FILE_ENCODING=UTF-8   # no Windows, o CLI leria file:// em cp1252
 ok() { echo "  [ok] $1"; }; falta() { echo "  [FALTA] $1"; }
 
 echo "== identidade e região"

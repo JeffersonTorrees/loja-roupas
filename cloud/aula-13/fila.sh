@@ -2,6 +2,7 @@
 # Aula 13 (Cloud): mostra a fila a cada 2 s até zerar (Ctrl+C para sair).
 # No CloudShell também dá:  watch -n 2 bash fila.sh --uma-vez
 export AWS_DEFAULT_REGION=us-east-1
+export AWS_CLI_FILE_ENCODING=UTF-8   # no Windows, o CLI leria file:// em cp1252
 FILA_URL=$(aws sqs get-queue-url --queue-name loja-pedidos --query QueueUrl --output text)
 DLQ_URL=$(aws sqs get-queue-url --queue-name loja-pedidos-dlq --query QueueUrl --output text)
 mostrar() {

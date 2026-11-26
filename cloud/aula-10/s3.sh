@@ -4,6 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 export AWS_DEFAULT_REGION=us-east-1
+export AWS_CLI_FILE_ENCODING=UTF-8   # no Windows, o CLI leria file:// em cp1252
 NOME="${NOME:?defina NOME (minúsculas, sem espaço)}"
 B="loja-equipe-aula10-$NOME"
 

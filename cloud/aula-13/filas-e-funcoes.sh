@@ -3,6 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 export AWS_DEFAULT_REGION=us-east-1
+export AWS_CLI_FILE_ENCODING=UTF-8   # no Windows, o CLI leria file:// em cp1252
 CONTA=$(aws sts get-caller-identity --query Account --output text)   # não versionado
 zipar() { rm -f "$2"; zip -j "$2" "$1" 2>/dev/null || python -c "import zipfile,sys; zipfile.ZipFile(sys.argv[2],'w').write(sys.argv[1],'lambda_function.py')" "$1" "$2"; }
 CONFIANCA='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"lambda.amazonaws.com"},"Action":"sts:AssumeRole"}]}'

@@ -4,6 +4,7 @@
 # Em outro terminal, acompanhe a fila:  bash fila.sh
 set -uo pipefail
 export AWS_DEFAULT_REGION=us-east-1
+export AWS_CLI_FILE_ENCODING=UTF-8   # no Windows, o CLI leria file:// em cp1252
 API_ID=$(aws apigatewayv2 get-apis --query "Items[?Name=='loja-api'].ApiId | [0]" --output text)
 URL=$(aws apigatewayv2 get-api --api-id "$API_ID" --query ApiEndpoint --output text)
 [ -n "${STAGE:-}" ] && URL="$URL/$STAGE"

@@ -3,6 +3,7 @@
 # a mensagem vai para a DLQ, o alarme vai para ALARM e o e-mail chega (1 a 3 minutos).
 set -uo pipefail
 export AWS_DEFAULT_REGION=us-east-1
+export AWS_CLI_FILE_ENCODING=UTF-8   # no Windows, o CLI leria file:// em cp1252
 API_ID=$(aws apigatewayv2 get-apis --query "Items[?Name=='loja-api'].ApiId | [0]" --output text)
 URL=$(aws apigatewayv2 get-api --api-id "$API_ID" --query ApiEndpoint --output text)
 [ -n "${STAGE:-}" ] && URL="$URL/$STAGE"

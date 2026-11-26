@@ -3,6 +3,7 @@
 # Uso: EMAIL=voce@exemplo.com bash alertas.sh   (depois confirme a inscrição no e-mail)
 set -euo pipefail
 export AWS_DEFAULT_REGION=us-east-1
+export AWS_CLI_FILE_ENCODING=UTF-8   # no Windows, o CLI leria file:// em cp1252
 EMAIL="${EMAIL:?defina EMAIL}"
 
 TOPICO=$(aws sns create-topic --name loja-alertas --query TopicArn --output text)

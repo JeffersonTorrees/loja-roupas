@@ -4,6 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 export AWS_DEFAULT_REGION=us-east-1
+export AWS_CLI_FILE_ENCODING=UTF-8   # no Windows, o CLI leria file:// em cp1252
 CONTA=$(aws sts get-caller-identity --query Account --output text)   # não versionado
 
 echo ">> 1. política inline loja-dynamodb no papel loja-api-role"

@@ -4,6 +4,7 @@
 # (alternativa: fazer pelo console com name tag "loja" — gera exatamente estes nomes)
 set -euo pipefail
 export AWS_DEFAULT_REGION=us-east-1
+export AWS_CLI_FILE_ENCODING=UTF-8   # no Windows, o CLI leria file:// em cp1252
 tag() { echo "ResourceType=$1,Tags=[{Key=Name,Value=$2}]"; }
 
 VPC=$(aws ec2 create-vpc --cidr-block 10.0.0.0/16 --tag-specifications "$(tag vpc loja-vpc)" \
