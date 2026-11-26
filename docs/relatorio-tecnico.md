@@ -1,7 +1,8 @@
 # Relatório técnico — Loja de Roupas (rascunho)
 
 **Disciplina:** Coding · Faculdade Senac Pernambuco · ADS 2026.2
-**Equipe:** _(preencher)_
+
+**Equipe:** Jefferson dos Santos Torres (trabalho individual)
 
 ## 1. O problema
 
