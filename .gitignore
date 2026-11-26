@@ -10,3 +10,4 @@ cloud/**/amostra/
 cloud/**/*.zip
 cloud/**/*.tmp.json
 cloud/**/*.tmp.js
+deploy/*.tmp.sh
