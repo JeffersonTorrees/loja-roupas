@@ -1,0 +1,168 @@
+/* Etapa 17: o visual da loja (Aula 11) */
+:root {
+  --verde: #1f6f6b;
+  --tinta: #1b1c1f;
+  --fundo: #f3efe6;
+  --cartao: #fffdf8;
+  --borda: #e2dccd;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  color: var(--tinta);
+  background: var(--fundo);
+}
+
+/* topo em Flexbox: logo e nome à esquerda, menu à direita */
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background: var(--cartao);
+  border-bottom: 1px solid var(--borda);
+}
+
+header p {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+nav {
+  margin-left: auto;
+}
+
+nav ul {
+  display: flex;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+nav a {
+  color: var(--verde);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+nav a:hover,
+nav a:focus-visible,
+nav a[aria-current="page"] {
+  text-decoration: underline;
+}
+
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* vitrine em Grid: 3 colunas, o título ocupa a linha toda */
+section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+section h2 {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+article {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px;
+  background: var(--cartao);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+}
+
+article h3,
+article p {
+  margin: 0;
+}
+
+article strong {
+  color: var(--verde);
+  font-size: 1.25rem;
+}
+
+button {
+  margin-top: auto;
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--verde);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(1.1);
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--tinta);
+  outline-offset: 2px;
+}
+
+footer {
+  padding: 24px;
+  text-align: center;
+  border-top: 1px solid var(--borda);
+}
+
+/* Etapa 18: o formulário em coluna */
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 420px;
+}
+
+.formulario label {
+  font-weight: 600;
+}
+
+.formulario input,
+.formulario select {
+  padding: 10px;
+  font: inherit;
+  background: var(--cartao);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+}
+
+.formulario button {
+  margin-top: 12px;
+}
+
+/* tela pequena: uma coluna só */
+@media (max-width: 700px) {
+  header {
+    flex-wrap: wrap;
+  }
+
+  nav {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  section {
+    grid-template-columns: 1fr;
+  }
+}
